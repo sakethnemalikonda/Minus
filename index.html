@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en" class="dark scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Minus — Subtract Debt. Add Life.</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              obsidian: '#050505',
+              paper: '#F0F0F0',
+              'neo-black': '#0D0D0D',
+              'neo-white': '#FFFFFF',
+              'neo-mint': '#00E699',
+              'neo-yellow': '#F2C94C',
+              'neo-orange': '#FF725E',
+              'neo-blue': '#2F80ED',
+              'neo-purple': '#8E44AD',
+              'neo-red': '#EB5757',
+            },
+            boxShadow: {
+              'neo': '5px 5px 0px 0px rgba(255, 255, 255, 1)',
+              'neo-sm': '3px 3px 0px 0px rgba(255, 255, 255, 1)',
+              'neo-lg': '8px 8px 0px 0px rgba(255, 255, 255, 1)',
+              'neo-dark': '5px 5px 0px 0px rgba(13, 13, 13, 1)',
+              'neo-mint': '5px 5px 0px 0px #00E699',
+              'neo-blue': '5px 5px 0px 0px #2F80ED',
+              'neo-orange': '5px 5px 0px 0px #FF725E',
+            },
+            fontFamily: {
+              sans: ['Inter', 'system-ui', 'sans-serif'],
+              heading: ['Outfit', 'sans-serif'],
+              mono: ['JetBrains Mono', 'monospace'],
+            },
+            backgroundImage: {
+              'dot-grid': 'radial-gradient(circle, #333 1px, transparent 1px)',
+              'dot-grid-light': 'radial-gradient(circle, #ddd 1px, transparent 1px)',
+              'diagonal-stripes': 'repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255, 255, 255, 0.03) 10px, rgba(255, 255, 255, 0.03) 20px)',
+            },
+            backgroundSize: {
+              'dot-grid': '24px 24px',
+            },
+            animation: {
+              'fadeIn': 'fadeIn 0.5s ease-out forwards',
+              'slideUp': 'slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+              'slideUpFull': 'slideUpFull 0.5s cubic-bezier(0.85, 0, 0.15, 1) forwards',
+              'float': 'float 6s ease-in-out infinite',
+              'flip-slow': 'flipY 4s ease-in-out infinite',
+            },
+            keyframes: {
+              fadeIn: {
+                '0%': { opacity: '0' },
+                '100%': { opacity: '1' },
+              },
+              slideUp: {
+                '0%': { opacity: '0', transform: 'translateY(20px)' },
+                '100%': { opacity: '1', transform: 'translateY(0)' },
+              },
+              slideUpFull: {
+                '0%': { transform: 'translateY(100%)' },
+                '100%': { transform: 'translateY(0)' },
+              },
+              float: {
+                '0%, 100%': { transform: 'translateY(0)' },
+                '50%': { transform: 'translateY(-20px)' },
+              },
+              flipY: {
+                '0%': { transform: 'rotateY(0deg)' },
+                '50%': { transform: 'rotateY(180deg)' },
+                '100%': { transform: 'rotateY(360deg)' },
+              }
+            }
+          }
+        }
+      }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+      body {
+        font-family: 'Inter', sans-serif;
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+        background-color: #050505;
+        color: #F8FAFC;
+        /* Custom Yellow Dart/Arrowhead Cursor (No tail, not full triangle) */
+        cursor: url('data:image/svg+xml;utf8,<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2 L 10 26 L 14 16 L 24 12 L 2 2 Z" fill="%23F2C94C" stroke="black" stroke-width="2" stroke-linejoin="round"/></svg>') 2 2, auto;
+      }
+      
+      /* Interactive Elements Cursor (Mint Dart) */
+      a, button, [role="button"], input, select, textarea, .cursor-pointer {
+         cursor: url('data:image/svg+xml;utf8,<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2 L 10 26 L 14 16 L 24 12 L 2 2 Z" fill="%2300E699" stroke="black" stroke-width="2" stroke-linejoin="round"/></svg>') 2 2, pointer;
+      }
+      
+      /* NeoPOP Scrollbar */
+      ::-webkit-scrollbar {
+        width: 10px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #050505;
+        border-left: 1px solid #333;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #ffffff;
+        border: 2px solid #050505;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #00E699;
+      }
+      
+      ::selection {
+        background: #00E699;
+        color: #000000;
+      }
+
+      .text-stroke-1 {
+        -webkit-text-stroke: 1px rgba(255,255,255,0.3);
+        color: transparent;
+      }
+      .text-stroke-black {
+        -webkit-text-stroke: 1px #000;
+        color: transparent;
+      }
+      
+      /* 3D Transform Helpers */
+      .preserve-3d {
+        transform-style: preserve-3d;
+      }
+      .backface-hidden {
+        backface-visibility: hidden;
+      }
+      .rotate-y-180 {
+        transform: rotateY(180deg);
+      }
+      .perspective-2000 {
+        perspective: 2000px;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "path": "https://esm.sh/path@^0.12.7",
+    "url": "https://esm.sh/url@^0.11.4",
+    "vite": "https://esm.sh/vite@^7.3.0",
+    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2",
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react": "https://esm.sh/react@^19.2.3",
+    "@google/genai": "https://esm.sh/@google/genai@^1.34.0",
+    "lucide-react": "https://esm.sh/lucide-react@^0.562.0",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "cors": "https://esm.sh/cors@^2.8.5",
+    "express": "https://esm.sh/express@^5.2.1",
+    "dotenv": "https://esm.sh/dotenv@^17.2.3"
+  }
+}
+</script>
+</head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
