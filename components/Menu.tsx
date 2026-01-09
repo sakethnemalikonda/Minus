@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { X, Menu as MenuIcon, ChevronRight, ArrowLeft, FileText, ExternalLink, Minimize2, Maximize2 } from "lucide-react";
 import { MarkdownRenderer } from "./Shared";
-import { PUBLIC_PRINCIPLES, LEDGER_CASES, MINUS_TERMS } from "./Constants";
+import { PUBLIC_PRINCIPLES, LEDGER_CASES, MINUS_TERMS } from "./Prompts";
 
 // --- Internal Record Window Component ---
 const RecordPage = ({ title, onClose }: { title: string, onClose: () => void }) => {
@@ -150,8 +150,7 @@ const Menu = () => {
   const menuItems = [
     { title: "Rule Book", color: "hover:bg-neo-yellow" },
     { title: "Ledger", color: "hover:bg-neo-mint" },
-    { title: "Terms & Conditions", color: "hover:bg-neo-blue hover:text-white" },
-    { title: "About Us", color: "hover:bg-neo-orange" }
+    { title: "Terms & Conditions", color: "hover:bg-neo-blue hover:text-white" }
   ];
 
   return (

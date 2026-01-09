@@ -21,24 +21,23 @@ const MainApp = () => {
       try {
         console.log(">> Initializing Gemini Client...");
         
-        // Safety check for API Key availability
-        const apiKey = process.env.API_KEY;
-
-        if (!apiKey || apiKey.trim() === '') {
-            throw new Error("API_KEY is missing. Please check your .env file or environment configuration.");
+        // Use environment variable strictly as per guidelines
+        if (!process.env.API_KEY) {
+            throw new Error("Gemini API Key is missing. Please check your environment configuration.");
         }
 
-        const ai = new GoogleGenAI({ apiKey: apiKey });
-        
+        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
         const userPrompt = GENERATE_USER_PROMPT(JSON.stringify(formData, null, 2));
 
         console.log(">> Sending request to Gemini...");
+
+        // Using gemini-3-flash-preview for fast, high-quality text generation
         const response = await ai.models.generateContent({
-            model: 'gemini-3-flash-preview', 
+            model: 'gemini-3-flash-preview',
             contents: userPrompt,
             config: {
                 systemInstruction: MINUS_RULEBOOK,
-                temperature: 0.1, // Low temp for strict financial adherence
+                temperature: 0.1, // Strict adherence to financial rules
                 maxOutputTokens: 4000,
             }
         });
@@ -61,8 +60,6 @@ const MainApp = () => {
           console.error("Analysis Failed:", error);
           // Enhance error message for common issues
           let msg = error.message || "Connection Failed";
-          if (msg.includes("API key not valid")) msg = "Invalid API Key provided.";
-          if (msg.includes("404")) msg = "Model gemini-3-flash-preview not found or API Key lacks access.";
           
           setErrorMessage(msg);
           setTimeout(() => setView('error'), 2000);
@@ -121,7 +118,7 @@ const MainApp = () => {
                            <p className="font-mono text-sm font-bold text-neo-mint uppercase tracking-widest">Pathways</p>
                            <div className="w-full mt-8 space-y-2 text-[10px] font-mono text-slate-600 text-left pl-8 opacity-60">
                                <div>{'>'} MAPPING_DEBT_VECTORS...</div>
-                               <div>{'>'} ELIMINATING_LEAKAGE...</div>
+                               <div>{'>'} CHECKING_CASE_LAW...</div>
                                <div>{'>'} 28TH_RULE_APPLIED...</div>
                            </div>
                       </div>

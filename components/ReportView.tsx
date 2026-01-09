@@ -1,16 +1,69 @@
 import React from "react";
-import { Download, Share2, CheckCircle2, ShieldCheck } from "lucide-react";
+import { Download, Share2, CheckCircle2, ShieldCheck, ArrowRight, LifeBuoy, Check } from "lucide-react";
 import { MarkdownRenderer } from "./Shared";
 
 const ReportView = ({ content }: { content: string }) => {
   return (
     <div className="min-h-screen bg-obsidian text-slate-50 relative">
+      <style>{`
+        @media print {
+            @page { margin: 10mm; }
+            body { 
+                background-color: white !important; 
+                color: black !important; 
+                -webkit-print-color-adjust: exact; 
+                print-color-adjust: exact;
+            }
+            .no-print { display: none !important; }
+            /* Hide all fixed elements like headers */
+            .fixed { display: none !important; }
+            
+            /* Main container reset */
+            .min-h-screen { 
+                min-height: auto !important; 
+                background: white !important;
+                padding: 0 !important;
+            }
+            
+            /* Report Card overrides */
+            #report-container {
+                border: 2px solid black !important;
+                box-shadow: none !important;
+                margin: 0 !important;
+                padding: 20px !important;
+                width: 100% !important;
+                page-break-inside: avoid;
+            }
+
+            /* System Status Card overrides */
+            .system-status-card {
+                background: white !important;
+                border: 2px solid black !important;
+                color: black !important;
+                box-shadow: none !important;
+                margin-bottom: 20px !important;
+            }
+            .system-status-card * {
+                color: black !important;
+                border-color: black !important;
+            }
+            
+            /* Text colors */
+            .text-slate-50, .text-slate-400, .text-white, .text-neo-mint {
+                color: black !important;
+            }
+            
+            /* Prose overrides */
+            .prose { 
+                max-width: 100% !important; 
+            }
+        }
+      `}</style>
       
       {/* 
         Sticky Header 
-        Fixed height (h-16 = 64px) to allow content padding calculation.
       */}
-      <div className="fixed top-0 left-0 right-0 z-50 bg-neo-black border-b-4 border-white shadow-[0_4px_20px_rgba(0,0,0,0.5)] h-20 flex items-center">
+      <div className="fixed top-0 left-0 right-0 z-50 bg-neo-black border-b-4 border-white shadow-[0_4px_20px_rgba(0,0,0,0.5)] h-20 flex items-center no-print">
          <div className="w-full max-w-7xl mx-auto px-6 flex justify-between items-center">
              <div className="flex items-center gap-3">
                 <div className="w-3 h-3 bg-neo-mint rounded-full animate-pulse shadow-[0_0_10px_#00E699]"></div>
@@ -19,22 +72,17 @@ const ReportView = ({ content }: { content: string }) => {
                     <span className="font-mono font-bold text-[10px] text-neo-mint leading-none">Live Analysis</span>
                 </div>
              </div>
-             <div className="flex gap-2">
-                <button className="bg-white text-black px-4 py-2 font-bold font-mono text-xs uppercase border-2 border-black shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] transition-all flex items-center gap-2">
-                   <Download className="w-4 h-4" /> <span className="hidden md:inline">Save PDF</span>
-                </button>
-             </div>
+             {/* Top Button Removed as requested */}
          </div>
       </div>
 
       {/* 
         Main Content Container
-        Added 'pt-28' (112px) to clear the fixed header (80px) + spacing.
       */}
       <div className="max-w-4xl mx-auto space-y-8 p-6 md:p-12 pb-32 pt-28">
          
          {/* System Status Card */}
-         <div className="bg-neutral-900 border-2 border-white p-6 md:p-8 shadow-neo animate-in fade-in slide-in-from-bottom-4 duration-700">
+         <div className="system-status-card bg-neutral-900 border-2 border-white p-6 md:p-8 shadow-neo animate-in fade-in slide-in-from-bottom-4 duration-700">
             <div className="flex justify-between items-start mb-6">
                 <div className="bg-neo-blue text-white px-3 py-1 font-mono text-xs font-bold border border-white">
                     SESSION ID: {Math.random().toString(36).substring(7).toUpperCase()}
@@ -45,19 +93,20 @@ const ReportView = ({ content }: { content: string }) => {
                Your Economic <br/><span className="text-neo-mint">Hygiene Report</span>
             </h1>
             <p className="text-slate-400 font-mono text-sm border-t border-dashed border-white/20 pt-4">
-               Generated by Minus Protocol v14.0 • Gemini 2.5 Flash Engine
+               Generated by Minus Protocol • Gemini Engine
             </p>
          </div>
 
          {/* Main Content Render */}
-         <div className="bg-paper text-black border-4 border-black p-6 md:p-12 shadow-[12px_12px_0px_0px_#00E699] relative overflow-hidden animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-200">
+         <div id="report-container" className="bg-paper text-black border-4 border-black p-6 md:p-12 shadow-[12px_12px_0px_0px_#00E699] relative overflow-hidden animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-200">
             
             {/* Watermark */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.03] pointer-events-none">
                <span className="text-[10rem] font-black uppercase rotate-[-30deg] block">MINUS</span>
             </div>
 
-            <div className="relative z-10 prose prose-lg max-w-none prose-headings:font-heading prose-headings:uppercase prose-headings:font-black prose-p:font-medium prose-li:font-bold">
+            {/* AI Generated Content */}
+            <div className="relative z-10 prose prose-lg max-w-none prose-headings:font-heading prose-headings:uppercase prose-headings:font-black prose-p:font-medium prose-li:font-bold prose-strong:text-black prose-strong:font-black">
                <MarkdownRenderer content={content} />
             </div>
 
@@ -75,6 +124,34 @@ const ReportView = ({ content }: { content: string }) => {
                </div>
             </div>
          </div>
+
+         {/* Section 9: Buttons (CTA) - Hidden in Print */}
+         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-500 no-print">
+            {/* Download */}
+            <button 
+                onClick={() => window.print()}
+                className="group bg-white border-4 border-black p-6 flex flex-col justify-between h-32 hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px_white] transition-all"
+            >
+                <Download className="w-8 h-8 text-black group-hover:scale-110 transition-transform" />
+                <span className="font-heading font-black text-lg uppercase text-black text-left leading-none">Download Plan (PDF)</span>
+            </button>
+
+            {/* Understand */}
+            <button className="group bg-neo-mint border-4 border-black p-6 flex flex-col justify-between h-32 hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px_white] transition-all shadow-[4px_4px_0px_0px_white]">
+                <Check className="w-8 h-8 text-black group-hover:scale-110 transition-transform" />
+                <span className="font-heading font-black text-lg uppercase text-black text-left leading-none">I Understand & Will Follow</span>
+            </button>
+
+            {/* Help */}
+            <button className="group bg-neo-black border-4 border-white p-6 flex flex-col justify-between h-32 hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px_#F2C94C] transition-all">
+                <LifeBuoy className="w-8 h-8 text-white group-hover:text-neo-yellow group-hover:scale-110 transition-transform" />
+                <div className="text-left">
+                    <span className="block font-heading font-black text-lg uppercase text-white leading-none">Need Human Help</span>
+                    <span className="block font-mono text-xs font-bold text-slate-500 mt-1 uppercase">(Optional)</span>
+                </div>
+            </button>
+         </div>
+
       </div>
     </div>
   );

@@ -10,17 +10,10 @@ export default defineConfig(({ mode }) => {
     plugins: [react()],
     define: {
       // Securely expose API_KEY to the client
-      // Fallback to empty string to prevent "process is not defined" errors in browser
       'process.env.API_KEY': JSON.stringify(env.API_KEY || process.env.API_KEY || '')
     },
     server: {
-      port: 5173,
-      proxy: {
-        '/api': {
-          target: 'http://localhost:3000',
-          changeOrigin: true,
-        }
-      }
+      port: 5173
     }
   };
 });
