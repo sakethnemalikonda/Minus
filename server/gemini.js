@@ -1,4 +1,4 @@
-import { GoogleGenAI } from "@google/genai";
+import OpenAI from "openai";
 import { MINUS_RULEBOOK, GENERATE_USER_PROMPT } from "./prompts.js";
 
 export const generateMinusReport = async (userData) => {
@@ -6,33 +6,34 @@ export const generateMinusReport = async (userData) => {
     throw new Error("API_KEY not found in environment variables.");
   }
 
-  console.log(`[Gemini] Generating report for user: ${userData.name || 'Anonymous'}`);
+  console.log(`[OpenAI] Generating report for user: ${userData.name || 'Anonymous'}`);
 
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const openai = new OpenAI({ apiKey: process.env.API_KEY });
   
   // Construct the prompt using the user data
   const userPrompt = GENERATE_USER_PROMPT(JSON.stringify(userData, null, 2));
 
   try {
-    // Using 'gemini-3-flash-preview' for robust text tasks as per guidelines
-    const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview', 
-      contents: userPrompt,
-      config: {
-        systemInstruction: MINUS_RULEBOOK,
-        temperature: 0.1, // Low temperature for consistent, strict adherence to financial rules
-        maxOutputTokens: 4000, // Allow enough length for the detailed report
-      }
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        { role: "system", content: MINUS_RULEBOOK },
+        { role: "user", content: userPrompt }
+      ],
+      temperature: 0.1, // Low temperature for consistent, strict adherence to financial rules
+      max_tokens: 4000,
     });
 
-    if (!response.text) {
-        throw new Error("Received empty response from Gemini.");
+    const reportText = response.choices[0]?.message?.content;
+
+    if (!reportText) {
+        throw new Error("Received empty response from OpenAI.");
     }
 
-    return response.text;
+    return reportText;
 
   } catch (error) {
-    console.error("Gemini API Error details:", error);
+    console.error("OpenAI API Error details:", error);
     throw new Error(`AI Generation Failed: ${error.message}`);
   }
 };

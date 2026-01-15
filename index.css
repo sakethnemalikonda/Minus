@@ -1,0 +1,63 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: 'Inter', sans-serif;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  background-color: #050505;
+  color: #F8FAFC;
+  /* Custom Yellow Dart/Arrowhead Cursor (No tail, not full triangle) */
+  cursor: url('data:image/svg+xml;utf8,<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2 L 10 26 L 14 16 L 24 12 L 2 2 Z" fill="%23F2C94C" stroke="black" stroke-width="2" stroke-linejoin="round"/></svg>') 2 2, auto;
+}
+
+/* Interactive Elements Cursor (Mint Dart) */
+a, button, [role="button"], input, select, textarea, .cursor-pointer {
+   cursor: url('data:image/svg+xml;utf8,<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2 L 10 26 L 14 16 L 24 12 L 2 2 Z" fill="%2300E699" stroke="black" stroke-width="2" stroke-linejoin="round"/></svg>') 2 2, pointer;
+}
+
+/* NeoPOP Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #050505;
+  border-left: 1px solid #333;
+}
+::-webkit-scrollbar-thumb {
+  background: #ffffff;
+  border: 2px solid #050505;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #00E699;
+}
+
+::selection {
+  background: #00E699;
+  color: #000000;
+}
+
+.text-stroke-1 {
+  -webkit-text-stroke: 1px rgba(255,255,255,0.3);
+  color: transparent;
+}
+.text-stroke-black {
+  -webkit-text-stroke: 1px #000;
+  color: transparent;
+}
+
+/* 3D Transform Helpers */
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+.backface-hidden {
+  backface-visibility: hidden;
+}
+.rotate-y-180 {
+  transform: rotateY(180deg);
+}
+.perspective-2000 {
+  perspective: 2000px;
+}

@@ -1,72 +1,147 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import ReportView from "./ReportView";
 import FormInterface from "./FormInterface";
-import { Workflow, Minimize2, AlertTriangle, RefreshCw } from "lucide-react";
-import { GoogleGenAI } from "@google/genai";
-import { MINUS_RULEBOOK, GENERATE_USER_PROMPT } from "./Prompts";
+import { Workflow, Minimize2, AlertTriangle, RefreshCw, Loader2 } from "lucide-react";
 
 const MainApp = () => {
   const [view, setView] = useState<'chat' | 'analyzing' | 'report' | 'error'>('chat');
   const [reportContent, setReportContent] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string>("");
+  const [statusMessage, setStatusMessage] = useState<string>("Connecting to Minus Core...");
+  
+  // Ref to track if we have already switched views to avoid double triggers
+  const viewSwitched = useRef(false);
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  // Status message rotation for the analyzing screen
+  useEffect(() => {
+    if (view !== 'analyzing') return;
+
+    const messages = [
+        "Connecting to Minus Core...",
+        "Structuring Cashflow Logic...",
+        "Checking Case Law Precedents...",
+        "Applying 28th Rule Logic...",
+        "Optimizing Debt Vectors...",
+        "Generating Final Report..."
+    ];
+    
+    let i = 0;
+    const interval = setInterval(() => {
+        i = (i + 1) % messages.length;
+        setStatusMessage(messages[i]);
+    }, 2500);
+
+    return () => clearInterval(interval);
+  }, [view]);
 
   const startAnalysis = async (formData: any) => {
-      // 1. Persistence (Optional, good for UX)
+      // 1. Persistence
       try { localStorage.setItem('minus_user_temp_data', JSON.stringify(formData)); } catch (e) {}
 
       // 2. UI State
       setView('analyzing');
       setErrorMessage("");
+      setReportContent("");
+      viewSwitched.current = false;
+      let accumulatedText = "";
+
+      // 3. Abort Controller for Timeout
+      if (abortControllerRef.current) abortControllerRef.current.abort();
+      const controller = new AbortController();
+      abortControllerRef.current = controller;
+      
+      // 60s Timeout - Sufficient for model thinking + network latency
+      const timeoutId = setTimeout(() => {
+          if (!accumulatedText && !viewSwitched.current) {
+              controller.abort();
+              setErrorMessage("Connection timed out. The model is taking too long to respond. Please try again.");
+              setView('error');
+          }
+      }, 60000); 
 
       try {
-        console.log(">> Initializing Gemini Client...");
+        console.log(">> Sending request to Server API...");
         
-        // Use environment variable strictly as per guidelines
-        if (!process.env.API_KEY) {
-            throw new Error("Gemini API Key is missing. Please check your environment configuration.");
-        }
-
-        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-        const userPrompt = GENERATE_USER_PROMPT(JSON.stringify(formData, null, 2));
-
-        console.log(">> Sending request to Gemini...");
-
-        // Using gemini-3-flash-preview for fast, high-quality text generation
-        const response = await ai.models.generateContent({
-            model: 'gemini-3-flash-preview',
-            contents: userPrompt,
-            config: {
-                systemInstruction: MINUS_RULEBOOK,
-                temperature: 0.1, // Strict adherence to financial rules
-                maxOutputTokens: 4000,
-            }
+        const res = await fetch('/api/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ formData }),
+          signal: controller.signal
         });
 
-        const reportText = response.text;
+        // Clear timeout as soon as we get headers
+        clearTimeout(timeoutId);
 
-        if (reportText) {
-            console.log(">> Report generated successfully.");
-            setReportContent(reportText);
-            // 4. Success Transition
-            setTimeout(() => {
-                setView('report');
-                localStorage.removeItem('minus_user_temp_data');
-            }, 1500); // Slight delay to show the animation
-        } else {
-            throw new Error("AI returned success but no report content.");
+        if (!res.ok) {
+           let errData;
+           try {
+             errData = await res.json();
+           } catch (e) {
+             errData = { error: res.statusText };
+           }
+           throw new Error(errData.error || "Server processing failed");
         }
 
+        if (!res.body) throw new Error("No response body received");
+
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder("utf-8");
+        let done = false;
+        
+        while (!done) {
+            const { value, done: doneReading } = await reader.read();
+            done = doneReading;
+            
+            if (value) {
+                const chunkValue = decoder.decode(value, { stream: true });
+                if (chunkValue) {
+                    accumulatedText += chunkValue;
+                    setReportContent(prev => prev + chunkValue);
+
+                    // Switch to report view immediately upon receiving ANY data
+                    if (!viewSwitched.current && accumulatedText.length > 50) { // Small buffer before switching
+                        viewSwitched.current = true;
+                        setView('report');
+                    }
+                }
+            }
+        }
+        
+        // Final flush
+        const finalChunk = decoder.decode();
+        if (finalChunk) {
+            accumulatedText += finalChunk;
+            setReportContent(prev => prev + finalChunk);
+        }
+
+        if (accumulatedText.length === 0) {
+            throw new Error("Analysis completed but no report was generated.");
+        }
+        
+        if (!viewSwitched.current) {
+            setView('report');
+        }
+        
+        localStorage.removeItem('minus_user_temp_data');
+
       } catch (error: any) {
-          console.error("Analysis Failed:", error);
-          // Enhance error message for common issues
-          let msg = error.message || "Connection Failed";
+          if (error.name === 'AbortError') return; // Handled by timeout logic
           
+          console.error("Analysis Failed:", error);
+          let msg = error.message || "Connection Failed";
           setErrorMessage(msg);
-          setTimeout(() => setView('error'), 2000);
+          
+          if (!viewSwitched.current) {
+              setView('error');
+          }
       }
   };
 
-  const handleRetry = () => setView('chat');
+  const handleRetry = () => {
+    setErrorMessage("");
+    setView('chat');
+  };
 
   if (view === 'error') {
       return (
@@ -117,15 +192,17 @@ const MainApp = () => {
                            <h2 className="text-3xl font-heading font-black uppercase text-white mb-2">Optimizing</h2>
                            <p className="font-mono text-sm font-bold text-neo-mint uppercase tracking-widest">Pathways</p>
                            <div className="w-full mt-8 space-y-2 text-[10px] font-mono text-slate-600 text-left pl-8 opacity-60">
-                               <div>{'>'} MAPPING_DEBT_VECTORS...</div>
-                               <div>{'>'} CHECKING_CASE_LAW...</div>
-                               <div>{'>'} 28TH_RULE_APPLIED...</div>
+                               <div className="flex items-center gap-2">
+                                  <Loader2 className="w-3 h-3 animate-spin" />
+                                  <span>{statusMessage}</span>
+                               </div>
                            </div>
                       </div>
                   </div>
               </div>
               <div className="mt-16 text-center">
                   <p className="font-mono text-xs font-bold text-slate-500 uppercase tracking-[0.2em] animate-pulse">Minus Protocol Active</p>
+                  <p className="mt-2 font-mono text-[10px] text-slate-600">{statusMessage}</p>
               </div>
           </div>
       );
