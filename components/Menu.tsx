@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { X, Menu as MenuIcon, ChevronRight, ArrowLeft, FileText, ExternalLink, Minimize2, Maximize2 } from "lucide-react";
 import { MarkdownRenderer } from "./Shared";
 import { PUBLIC_PRINCIPLES, LEDGER_CASES, MINUS_TERMS } from "./Prompts";
@@ -7,6 +7,14 @@ import { PUBLIC_PRINCIPLES, LEDGER_CASES, MINUS_TERMS } from "./Prompts";
 const RecordPage = ({ title, onClose }: { title: string, onClose: () => void }) => {
   const [selectedCaseId, setSelectedCaseId] = useState<string | null>(null);
   
+  // Lock body scroll when this modal is open to prevent background scrolling
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, []);
+
   const isRuleBook = title === "Rule Book";
   const isLedger = title === "Ledger";
   const isTerms = title === "Terms & Conditions";
@@ -128,7 +136,7 @@ const RecordPage = ({ title, onClose }: { title: string, onClose: () => void }) 
                  <span className="flex-grow text-right text-slate-500">READ-ONLY MODE</span>
              </div>
 
-             <div className="flex-1 overflow-y-auto p-6 md:p-10 scrollbar-thin scrollbar-thumb-black scrollbar-track-transparent">
+             <div className="flex-1 overflow-y-auto p-6 md:p-10 scrollbar-thin scrollbar-thumb-black scrollbar-track-transparent overscroll-contain">
                  {getRenderContent()}
              </div>
           </div>

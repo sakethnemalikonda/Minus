@@ -61,25 +61,12 @@ const ReportView = ({ content }: { content: string }) => {
       `}</style>
       
       {/* 
-        Sticky Header 
-      */}
-      <div className="fixed top-0 left-0 right-0 z-50 bg-neo-black border-b-4 border-white shadow-[0_4px_20px_rgba(0,0,0,0.5)] h-20 flex items-center no-print">
-         <div className="w-full max-w-7xl mx-auto px-6 flex justify-between items-center">
-             <div className="flex items-center gap-3">
-                <div className="w-3 h-3 bg-neo-mint rounded-full animate-pulse shadow-[0_0_10px_#00E699]"></div>
-                <div className="flex flex-col">
-                    <span className="font-heading font-black uppercase tracking-widest text-sm text-white leading-none">Minus Protocol</span>
-                    <span className="font-mono font-bold text-[10px] text-neo-mint leading-none">Live Analysis</span>
-                </div>
-             </div>
-             {/* Top Button Removed as requested */}
-         </div>
-      </div>
-
-      {/* 
         Main Content Container
+        We use pt-32 (approx 128px) to provide ample clearance for the fixed 
+        Hamburger and HomeLink buttons that reside in the top left corner 
+        rendered by the parent layout.
       */}
-      <div className="max-w-4xl mx-auto space-y-8 p-6 md:p-12 pb-32 pt-28">
+      <div className="max-w-4xl mx-auto space-y-8 p-6 md:p-12 pb-32 pt-32">
          
          {/* System Status Card */}
          <div className="system-status-card bg-neutral-900 border-2 border-white p-6 md:p-8 shadow-neo animate-in fade-in slide-in-from-bottom-4 duration-700">
